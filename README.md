@@ -45,6 +45,17 @@ compiling; **nobody has spoken into it yet.** That test needs a person and a mic
   Without Accessibility it falls back to the clipboard and says so.
 - The onboarding try step now drives the real engine, not the canned one.
 
+## Known gaps, deliberately left
+
+- **No Settings window.** The onboarding no longer claims there is one. Building it needs a
+  hotkey recorder, which is the real work; the three fixed choices in first run stand in
+  until then.
+- **No app icon.** Needed before any build reaches another person.
+- **The shortcut stands down while the welcome window is open,** so it and the try step
+  cannot fight over the microphone. Reinstated on close.
+- **Escape cancels only while an Aloud window is frontmost.** A global key monitor needs
+  Accessibility, which this app will not require.
+
 ## Next
 
 **Test S1 by hand.** Then S2: cancel with Escape, a history of the last fifty dictations,

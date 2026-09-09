@@ -24,6 +24,16 @@ public enum OnboardingWindow {
     public static let completedKey = "aloud.onboardingCompleted"
 
     private static var window: NSWindow?
+    private static let delegate = WindowDelegate()
+
+    /// Called with true when the welcome window opens and false when it closes.
+    ///
+    /// The global shortcut has to stand down while this window is up. Two `DictationEngine`
+    /// instances exist by design, one here and one behind the shortcut, and the shortcut
+    /// step teaches the user the very key combination that would start the second one. Both
+    /// would open the microphone at once, and the shortcut's engine would try to type its
+    /// result into this window.
+    public static var isOpenChanged: ((Bool) -> Void)?
 
     public static var hasCompleted: Bool {
         UserDefaults.standard.bool(forKey: completedKey)
@@ -74,14 +84,31 @@ public enum OnboardingWindow {
         // nothing and leaves the finished window wherever its top left corner landed.
         created.setContentSize(hosting.fittingSize)
         created.center()
+        // Closing with the red button has to stand the shortcut back up too, not just
+        // finishing the flow.
+        created.delegate = delegate
 
         window = created
+        isOpenChanged?(true)
         created.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
     }
 
     public static func close() {
-        window?.close()
-        window = nil
+        guard let window else { return }
+        window.delegate = nil
+        window.close()
+        self.window = nil
+        isOpenChanged?(false)
+    }
+
+    /// Notices the red button.
+    private final class WindowDelegate: NSObject, NSWindowDelegate {
+        func windowWillClose(_ notification: Notification) {
+            MainActor.assumeIsolated {
+                OnboardingWindow.window = nil
+                OnboardingWindow.isOpenChanged?(false)
+            }
+        }
     }
 }

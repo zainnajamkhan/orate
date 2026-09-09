@@ -34,6 +34,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         installStatusItem()
         wireDictation()
 
+        // Stand the shortcut down while the welcome window is up, so that pressing the key
+        // the shortcut step is teaching does not open the microphone twice and type the
+        // result into the window explaining it.
+        OnboardingWindow.isOpenChanged = { [weak self] isOpen in
+            guard let self else { return }
+            if isOpen {
+                dictation.deactivate()
+            } else {
+                _ = dictation.activate()
+            }
+        }
+
         // First run opens the welcome. Afterwards the app starts silently, which for a menu
         // bar utility is the whole point.
         if !OnboardingWindow.hasCompleted {

@@ -32,7 +32,7 @@ struct ReadyStep: View {
                     VStack(alignment: .leading, spacing: Space.hair) {
                         Text("Look for the waveform up here")
                             .font(Type.heading)
-                        Text("Settings, your history of the last fifty dictations, and this guide again all live behind it.")
+                        Text("It turns red while Aloud is listening, and this guide is always one click away behind it.")
                             .font(Type.detail)
                             .foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)

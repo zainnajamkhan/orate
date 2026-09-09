@@ -13,8 +13,8 @@ import SwiftUI
 ///
 /// A default is offered already chosen rather than an empty recorder waiting to be filled
 /// in. An empty field on a first run is a decision handed to someone who has not used the
-/// app yet and has no way to make it; the ones who care will change it here or in Settings,
-/// and the rest are served better by a sensible answer already in place.
+/// app yet and has no way to make it; the ones who care will change it here, and the rest
+/// are served better by a sensible answer already in place.
 struct HotkeyStep: View {
 
     @ObservedObject var model: OnboardingModel
@@ -66,9 +66,9 @@ struct HotkeyStep: View {
                 .entrance(3)
 
                 Point(
-                    symbol: "slider.horizontal.3",
-                    title: "Changeable at any time",
-                    detail: "Settings has a recorder that will take any combination, and it warns you if another app has already claimed it."
+                    symbol: "checkmark.shield",
+                    title: "Nothing else will steal it",
+                    detail: "Aloud claims the shortcut across your whole Mac, and tells you if another app got there first rather than silently doing nothing."
                 )
                 .entrance(4)
             }
