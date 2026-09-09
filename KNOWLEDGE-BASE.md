@@ -163,6 +163,33 @@ the frame centred and clipped it, so every element in that column was drawn 36 p
 of where it belonged and cut off at both edges. Backgrounds are sized by their parent and
 cannot do this: use `.background { }`, not a sibling in a stack.
 
+## Accessibility kept being refused, and the tick in Settings was a lie
+
+**An ad hoc signature makes the Accessibility grant last exactly one build.** Debug was
+signed with `CODE_SIGN_IDENTITY = "-"`, which produces a fresh identity on every build.
+macOS ties an Accessibility grant to the signature, so each rebuild silently invalidated
+it. The tick stayed in System Settings, pointing at a build that no longer existed, and
+`AXIsProcessTrusted()` returned false while the user was looking at a switch that said
+otherwise.
+
+**Fix: sign Debug with a real certificate.** A free Apple ID's Personal Team is enough.
+Two traps getting there:
+
+- `CODE_SIGN_IDENTITY = "Apple Development"` with automatic signing fails with *No signing
+  certificate "Mac Development" found*. A Personal Team never issues that certificate.
+- Naming the certificate by its **SHA1 fingerprint** with `CODE_SIGN_STYLE = Manual` works.
+  `security find-identity -v -p codesigning` prints it.
+
+After changing the signature the old grant is stale: remove Aloud from the Accessibility
+list and add it again. From then on it survives rebuilds.
+
+**Check it rather than trusting the switch:** the log records
+`accessibility trusted: true|false` at launch, and every clipboard fallback says why.
+
+**A modal alert after every dictation is not a notice, it is an obstruction.** It stole
+focus from the window being dictated into and had to be dismissed before work could carry
+on, thirty times a day. Shown once now.
+
 ## The Xcode project
 
 **It uses `PBXFileSystemSynchronizedRootGroup`,** pointed at `App/Sources`. New Swift files

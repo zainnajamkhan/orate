@@ -9,6 +9,7 @@
 import AloudApp
 import AloudCore
 import AppKit
+import ApplicationServices
 import SwiftUI
 
 /// The shell.
@@ -40,6 +41,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         Diagnostics.log("launched, log at \(Diagnostics.path)")
+        Diagnostics.log("accessibility trusted: \(AccessibilityAuthorization.current == .granted)")
         installStatusItem()
         wireDictation()
 
@@ -94,15 +96,30 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem?.button?.contentTintColor = recording ? .systemRed : nil
     }
 
+    /// Explained once, then never again.
+    ///
+    /// This was a modal alert after every single dictation. For something used thirty times
+    /// a day that is not a notice, it is an obstruction: it steals focus from the window the
+    /// user was dictating into, and it has to be dismissed before they can carry on. The
+    /// information is worth giving exactly once.
+    private static let clipboardNoticeKey = "aloud.clipboardNoticeShown"
+
     private func report(_ outcome: DictationEngine.Outcome) {
         guard case .copied = outcome else { return }
-        // Typing needs no announcement: the words are visibly there. The clipboard route is
-        // the one the user has to be told about, or the dictation looks like it vanished.
+        guard !UserDefaults.standard.bool(forKey: Self.clipboardNoticeKey) else { return }
+        UserDefaults.standard.set(true, forKey: Self.clipboardNoticeKey)
+
         let notice = NSAlert()
-        notice.messageText = "Copied to your clipboard"
+        notice.messageText = "Your words are on the clipboard"
         notice.informativeText = """
-        Press Command V to paste. Aloud can type this straight in for you if you turn on \
-        Accessibility in System Settings.
+        Press Command V to paste them. Aloud can type straight into your apps instead, \
+        which needs Accessibility permission.
+
+        If Aloud is already ticked in System Settings, switch it off and on again. The \
+        permission is tied to each build of the app, so it has to be renewed after an \
+        update.
+
+        This will not be shown again.
         """
         notice.addButton(withTitle: "OK")
         notice.addButton(withTitle: "Open Settings")

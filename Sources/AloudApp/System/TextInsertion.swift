@@ -32,6 +32,7 @@ enum TextInsertion {
         guard !trimmed.isEmpty else { return .copied }
 
         guard AXIsProcessTrusted() else {
+            Diagnostics.log("not trusted for Accessibility, copying instead of typing")
             copy(trimmed)
             return .copied
         }
