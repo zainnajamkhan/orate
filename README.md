@@ -47,6 +47,8 @@ compiling; **nobody has spoken into it yet.** That test needs a person and a mic
 
 ## Known gaps, deliberately left
 
+- **The default shortcut is Control, Option and Space.** Not Option and Space: that is
+  Raycast's default and it swallows the press before Aloud sees it.
 - **No Settings window.** The onboarding no longer claims there is one. Building it needs a
   hotkey recorder, which is the real work; the three fixed choices in first run stand in
   until then.
@@ -55,6 +57,11 @@ compiling; **nobody has spoken into it yet.** That test needs a person and a mic
   cannot fight over the microphone. Reinstated on close.
 - **Escape cancels only while an Aloud window is frontmost.** A global key monitor needs
   Accessibility, which this app will not require.
+- **One engine, one instance.** A second copy would claim the shortcut twice and open the
+  microphone twice on a single press. `SingleInstance` refuses to run and raises the copy
+  that is already there.
+- **There is a log** at `~/Library/Logs/Aloud/aloud.log`, reachable from the menu bar. A
+  menu bar app has nowhere else to say what went wrong.
 
 ## Next
 

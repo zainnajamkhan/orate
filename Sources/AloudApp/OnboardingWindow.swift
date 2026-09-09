@@ -39,8 +39,10 @@ public enum OnboardingWindow {
         UserDefaults.standard.bool(forKey: completedKey)
     }
 
+    /// `engine` is the app's one engine. The preview harness passes nothing and gets a
+    /// canned one, because it has no microphone permission to work with.
     public static func present(
-        source: DictationTrialSource? = nil,
+        engine: DictationEngine? = nil,
         onFinish: (() -> Void)? = nil
     ) {
         // Already up: bring it forward rather than opening a second copy.
@@ -50,13 +52,10 @@ public enum OnboardingWindow {
             return
         }
 
-        // The real engine, not a demo. The try step is the screen that convinces someone
-        // to buy the app, so it runs exactly the code the shortcut runs. Insertion is off
-        // here only because the words are meant to land in this window.
-        let trial = DictationTrial(
-            source: source ?? DictationEngine(insertsIntoFrontmostApp: false)
-        )
-        let view = OnboardingView(model: OnboardingModel(trial: trial)) {
+        // The app's own engine, so the try step and the shortcut are the same thing and
+        // the screen that sells the app is never the one screen left untested.
+        let engine = engine ?? DictationEngine(insertsIntoFrontmostApp: false, isPreview: true)
+        let view = OnboardingView(model: OnboardingModel(engine: engine)) {
             UserDefaults.standard.set(true, forKey: completedKey)
             close()
             onFinish?()

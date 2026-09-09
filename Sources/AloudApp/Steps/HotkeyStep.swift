@@ -18,12 +18,22 @@ import SwiftUI
 struct HotkeyStep: View {
 
     @ObservedObject var model: OnboardingModel
+    @ObservedObject private var engine: DictationEngine
 
-    private static let alternatives: [Hotkey] = [
-        .suggested,
-        Hotkey(keyCode: 96, modifiers: []),
-        Hotkey(keyCode: 49, modifiers: [.control, .option]),
-    ]
+    /// How many dictations had started when this screen appeared.
+    ///
+    /// Anything above it means a press actually arrived.
+    @State private var baseline: Int?
+
+    init(model: OnboardingModel) {
+        self.model = model
+        _engine = ObservedObject(wrappedValue: model.engine)
+    }
+
+    private var wasHeard: Bool {
+        guard let baseline else { return false }
+        return engine.startCount > baseline
+    }
 
     var body: some View {
         StepScaffold(
@@ -49,7 +59,7 @@ struct HotkeyStep: View {
                         .foregroundStyle(.secondary)
 
                     HStack(spacing: Space.small) {
-                        ForEach(Self.alternatives, id: \.self) { candidate in
+                        ForEach(Hotkey.alternatives, id: \.self) { candidate in
                             Button {
                                 model.setHotkey(candidate)
                             } label: {
@@ -65,14 +75,43 @@ struct HotkeyStep: View {
                 }
                 .entrance(3)
 
-                Point(
-                    symbol: "checkmark.shield",
-                    title: "Nothing else will steal it",
-                    detail: "Aloud claims the shortcut across your whole Mac, and tells you if another app got there first rather than silently doing nothing."
-                )
-                .entrance(4)
+                proof
+                    .entrance(4)
             }
             .padding(.top, Space.small)
         }
+        .onAppear { baseline = engine.startCount }
+        .onChange(of: model.flow.hotkey) { _, _ in baseline = engine.startCount }
+    }
+
+    /// Ask the user to press it, and say whether it arrived.
+    ///
+    /// This exists because a shortcut can be registered successfully and still never fire.
+    /// Another app running a global key monitor, Raycast being the common one, swallows the
+    /// press before Aloud sees it, and the registration reports no error at all. Nothing
+    /// but an actual press can tell the difference, so the user is asked for one here
+    /// rather than discovering months later that the app "does not work".
+    @ViewBuilder
+    private var proof: some View {
+        HStack(spacing: Space.medium) {
+            Image(systemName: wasHeard ? "checkmark.circle.fill" : "hand.tap")
+                .font(Type.lead)
+                .foregroundStyle(wasHeard ? Color.green : Color.aloud)
+                .frame(width: 26)
+
+            VStack(alignment: .leading, spacing: Space.hair) {
+                Text(wasHeard ? "Aloud heard it" : "Press it now to check")
+                    .font(Type.heading)
+                Text(wasHeard
+                    ? "The shortcut is yours. Nothing else on this Mac is taking it first."
+                    : "Some apps take a shortcut before Aloud can see it. Launchers like Raycast and Alfred are the usual ones. Press yours and this will confirm it arrived.")
+                    .font(Type.detail)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .well(radius: Radius.large)
+        .gentleAnimation(wasHeard)
+        .accessibilityElement(children: .combine)
     }
 }

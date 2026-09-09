@@ -121,9 +121,22 @@ struct HotkeyTests {
         #expect(Hotkey.keyName(for: 200) == "Key 200")
     }
 
-    @Test("The suggested default is Option and Space")
+    @Test("The suggested default avoids Raycast's Option and Space")
     func suggestedDefault() {
-        #expect(Hotkey.suggested.keycapParts == ["\u{2325}", "Space"])
+        #expect(Hotkey.suggested.keycapParts == ["\u{2303}", "\u{2325}", "Space"])
+        // The specific collision that made this necessary: Raycast ships Option Space as
+        // its default and eats the event before Aloud sees it.
+        #expect(Hotkey.suggested != Hotkey(keyCode: 49, modifiers: [.option]))
+    }
+
+    @Test("Every offered shortcut carries at least one modifier")
+    func alternativesAreNotBareKeys() {
+        for candidate in Hotkey.alternatives where candidate.keyCode != 96 {
+            #expect(
+                candidate.modifiers != [],
+                "a bare letter key would fire while typing: \(candidate.keycapParts)"
+            )
+        }
     }
 }
 

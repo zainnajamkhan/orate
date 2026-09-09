@@ -33,7 +33,7 @@ public struct OnboardingView: View {
 
     public var body: some View {
         HStack(spacing: 0) {
-            Stage(model: model, trial: model.trial)
+            Stage(model: model, engine: model.engine)
 
             VStack(spacing: 0) {
                 content

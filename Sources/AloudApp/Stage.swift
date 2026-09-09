@@ -23,7 +23,7 @@ import SwiftUI
 struct Stage: View {
 
     @ObservedObject var model: OnboardingModel
-    @ObservedObject var trial: DictationTrial
+    @ObservedObject var engine: DictationEngine
 
     var body: some View {
         ZStack {
@@ -62,7 +62,7 @@ struct Stage: View {
         case .welcome: WelcomeHero()
         case .microphone: MicrophoneHero(granted: model.flow.microphone == .granted)
         case .hotkey: HotkeyHero(hotkey: model.flow.hotkey)
-        case .tryIt: TryItHero(trial: trial, hotkey: model.flow.hotkey)
+        case .tryIt: TryItHero(engine: engine, hotkey: model.flow.hotkey)
         case .pasting: PastingHero(granted: model.flow.accessibility == .granted)
         case .ready: ReadyHero(hotkey: model.flow.hotkey)
         }
@@ -91,7 +91,7 @@ struct Stage: View {
                 : "macOS asks once. Aloud cannot ask on its own behalf."
         case .hotkey: "Held, not tapped. Let go and the words are already on their way."
         case .tryIt:
-            trial.isRecording
+            engine.isRecording
                 ? "Listening. Everything you see is happening on this Mac."
                 : "Hold the button opposite and say anything at all."
         case .pasting:
@@ -181,23 +181,23 @@ private struct HotkeyHero: View {
 
 private struct TryItHero: View {
 
-    @ObservedObject var trial: DictationTrial
+    @ObservedObject var engine: DictationEngine
     let hotkey: Hotkey
 
     var body: some View {
         VStack(spacing: Space.section) {
             Waveform(
-                levels: trial.levels,
-                isRecording: trial.isRecording,
+                levels: engine.levels,
+                isRecording: engine.isRecording,
                 barWidth: 4,
                 spacing: 4,
                 usesBrandColour: false
             )
             .frame(height: 130)
 
-            RecordingBadge(isRecording: trial.isRecording, onDarkGround: true)
+            RecordingBadge(isRecording: engine.isRecording, onDarkGround: true)
 
-            KeycapRow(hotkey, isPressed: trial.isRecording, scale: 1.1, onDarkGround: true)
+            KeycapRow(hotkey, isPressed: engine.isRecording, scale: 1.1, onDarkGround: true)
                 .opacity(0.8)
         }
         .frame(height: 240)

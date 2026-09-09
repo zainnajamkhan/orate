@@ -11,9 +11,9 @@ import AppKit
 
 /// The onboarding, on its own, with no app around it.
 ///
-/// Quality here is judged by looking, not by a test, so there has to be something to look
-/// at before the rest of Aloud exists. This is not shipped and is not signed; it opens the
-/// window, and quitting it quits the process.
+/// Quality here is judged by looking, not by a test. This runs the flow with a canned
+/// dictation source so it can be looked at on a machine with no microphone permission and
+/// no signed bundle. It is not shipped and it is not signed.
 final class PreviewDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {

@@ -31,25 +31,29 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // Two copies means two status items, two shortcut claims, and one keypress opening
+        // the microphone twice. Running from Xcode over an already running copy does it
+        // every time, which is how it was found.
+        guard SingleInstance.claim() else {
+            NSApp.terminate(nil)
+            return
+        }
+
+        Diagnostics.log("launched, log at \(Diagnostics.path)")
         installStatusItem()
         wireDictation()
 
-        // Stand the shortcut down while the welcome window is up, so that pressing the key
-        // the shortcut step is teaching does not open the microphone twice and type the
-        // result into the window explaining it.
+        // The shortcut stays live while the welcome window is up, so the user can prove it
+        // reaches Aloud on the step that teaches it. Only the typing is suppressed, because
+        // the words are meant to land in the window rather than in it.
         OnboardingWindow.isOpenChanged = { [weak self] isOpen in
-            guard let self else { return }
-            if isOpen {
-                dictation.deactivate()
-            } else {
-                _ = dictation.activate()
-            }
+            self?.dictation.engine.insertsIntoFrontmostApp = !isOpen
         }
 
         // First run opens the welcome. Afterwards the app starts silently, which for a menu
         // bar utility is the whole point.
         if !OnboardingWindow.hasCompleted {
-            OnboardingWindow.present()
+            OnboardingWindow.present(engine: dictation.engine)
         }
     }
 
@@ -63,7 +67,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             self?.report(outcome)
         }
 
+        Diagnostics.log("claiming shortcut \(dictation.hotkey.keycapParts.joined(separator: " "))")
         if !dictation.activate() {
+            Diagnostics.log("shortcut refused, another app owns it")
             // Registration fails when another app already owns the combination. An app that
             // looks installed and silently never responds is the worst possible failure, so
             // it is said out loud once.
@@ -131,6 +137,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             action: #selector(showOnboarding),
             keyEquivalent: ""
         ).target = self
+        menu.addItem(
+            withTitle: "Reveal Log\u{2026}",
+            action: #selector(revealLog),
+            keyEquivalent: ""
+        ).target = self
         menu.addItem(.separator())
         menu.addItem(
             withTitle: "Quit Aloud",
@@ -140,7 +151,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         return menu
     }
 
+    @objc private func revealLog() {
+        NSWorkspace.shared.selectFile(Diagnostics.path, inFileViewerRootedAtPath: "")
+    }
+
     @objc private func showOnboarding() {
-        OnboardingWindow.present()
+        OnboardingWindow.present(engine: dictation.engine)
     }
 }

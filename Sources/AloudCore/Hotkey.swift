@@ -50,11 +50,22 @@ public struct Hotkey: Equatable, Hashable, Codable, Sendable {
 
     /// The default offered on the hotkey step.
     ///
-    /// Right Option held down on its own is what the fastest competitors use, because it is
-    /// the one modifier no application binds and it needs no other finger. Aloud cannot
-    /// register a bare modifier through the ordinary hotkey API, so the offer here is the
-    /// nearest safe thing and the bare modifier arrives with the real recorder in S1.
-    public static let suggested = Hotkey(keyCode: 49, modifiers: [.option])
+    /// Control, Option and Space. Three modifiers looks heavy for something held thirty
+    /// times a day, and it is chosen anyway, because the alternative was worse: Option and
+    /// Space is **Raycast's default**, and Raycast consumes it before Aloud ever sees it.
+    /// The failure is silent and looks exactly like a broken app, which is the single worst
+    /// first impression this product could make.
+    ///
+    /// Two modifiers plus a key is also the shape almost nothing else in the system claims,
+    /// and it is still reachable with one hand.
+    public static let suggested = Hotkey(keyCode: 49, modifiers: [.control, .option])
+
+    /// The other offers on the shortcut step, all picked for being unlikely to be taken.
+    public static let alternatives: [Hotkey] = [
+        suggested,
+        Hotkey(keyCode: 2, modifiers: [.control, .option]),
+        Hotkey(keyCode: 96, modifiers: []),
+    ]
 
     /// The pieces to draw, modifiers first, key last.
     ///
@@ -72,6 +83,11 @@ public struct Hotkey: Equatable, Hashable, Codable, Sendable {
     public static func keyName(for keyCode: UInt16) -> String {
         switch keyCode {
         case 49: "Space"
+        case 0: "A"
+        case 1: "S"
+        case 2: "D"
+        case 3: "F"
+        case 46: "M"
         case 36: "\u{21A9}"
         case 48: "\u{21E5}"
         case 53: "esc"

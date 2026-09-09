@@ -32,16 +32,16 @@ public final class OnboardingModel: ObservableObject {
         }
     }
 
-    public let trial: DictationTrial
+    public let engine: DictationEngine
 
     private let preferences: PreferencesStore
     private var accessibilityPoll: AnyObject?
 
     // `PreferencesStore.shared` cannot be a default argument: defaults are evaluated
     // outside the actor, and the store is main actor bound. Same trap as `present`.
-    public init(trial: DictationTrial, preferences: PreferencesStore? = nil) {
+    public init(engine: DictationEngine, preferences: PreferencesStore? = nil) {
         let preferences = preferences ?? .shared
-        self.trial = trial
+        self.engine = engine
         self.preferences = preferences
         flow.hotkey = preferences.hotkey
         flow.microphone = MicrophoneAuthorization.current

@@ -106,6 +106,26 @@ Accessibility, so cancelling from inside another app is not available without th
 permission. A local monitor works whenever an Aloud window is frontmost, and everywhere
 else the fallback is to let go and delete.
 
+## The shortcut, and why the first default was wrong
+
+**Option and Space is Raycast's default.** It is also close to every other launcher's. A
+user with Raycast installed presses the shortcut Aloud just taught them and Raycast opens.
+Aloud's default is now **Control, Option and Space**. Three modifiers is heavier than ideal
+for something held thirty times a day, and it is still the right trade.
+
+**A registered shortcut can still never fire, with no error anywhere.**
+`RegisterEventHotKey` returns success, and an app running a global key monitor takes the
+press first regardless. There is no API to ask who won. The only honest test is an actual
+press, which is why the shortcut step in the onboarding waits for one and confirms it
+arrived. Without that, this failure looks exactly like a broken app.
+
+**`pkill -f Aloud` does not reliably kill it; use `pkill -9`.** A stale copy survived
+several rounds of testing and quietly served an old build, so fixes appeared to have no
+effect. After a force kill, `open` can return error -600 for a few seconds while the old
+process finishes tearing down. Wait and retry.
+
+**Check the running count before believing any test.** `pgrep -f "Aloud.app" | wc -l`.
+
 ## The Xcode project
 
 **It uses `PBXFileSystemSynchronizedRootGroup`,** pointed at `App/Sources`. New Swift files

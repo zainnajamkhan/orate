@@ -22,38 +22,39 @@ import SwiftUI
 struct TryItStep: View {
 
     @ObservedObject var model: OnboardingModel
-    @ObservedObject private var trial: DictationTrial
+    @ObservedObject private var engine: DictationEngine
 
     init(model: OnboardingModel) {
         self.model = model
-        _trial = ObservedObject(wrappedValue: model.trial)
+        _engine = ObservedObject(wrappedValue: model.engine)
     }
 
-    private var hasFinished: Bool { trial.hasText && !trial.isRecording }
+    private var hasText: Bool { !engine.text.isEmpty }
+    private var hasFinished: Bool { hasText && !engine.isRecording }
 
     var body: some View {
         StepScaffold(
             headline: hasFinished ? "That is all there is to it" : "Try it here",
             lead: hasFinished
                 ? "In any other app those words would already be in the document, at the cursor, exactly where you were typing."
-                : "Hold the button, say anything, and let go. Nothing is being sent anywhere."
+                : "Hold the button below, or hold your shortcut. Say anything, and let go."
         ) {
             VStack(alignment: .leading, spacing: Space.large) {
                 transcript
                     .entrance(2)
 
                 HStack(spacing: Space.medium) {
-                    HoldToTalkButton(isRecording: trial.isRecording) { isDown in
+                    HoldToTalkButton(isRecording: engine.isRecording) { isDown in
                         if isDown {
-                            trial.begin()
+                            engine.begin()
                         } else {
-                            trial.end()
-                            if trial.hasText { model.markDictated() }
+                            engine.end()
+                            if hasText { model.markDictated() }
                         }
                     }
 
                     if hasFinished {
-                        Button("Try again") { trial.reset() }
+                        Button("Try again") { engine.cancel() }
                             .buttonStyle(.quiet)
                     }
 
@@ -68,12 +69,12 @@ struct TryItStep: View {
     /// down the screen in the middle of a sentence.
     private var transcript: some View {
         ScrollView {
-            Text(trial.transcript.isEmpty ? "Your words will appear here." : trial.transcript)
+            Text(engine.text.isEmpty ? "Your words will appear here." : engine.text)
                 .font(.system(.title3, design: .default))
-                .foregroundStyle(trial.transcript.isEmpty ? .tertiary : .primary)
+                .foregroundStyle(engine.text.isEmpty ? .tertiary : .primary)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .textSelection(.enabled)
-                .gentleAnimation(trial.transcript)
+                .gentleAnimation(engine.text)
         }
         .frame(height: 118)
         .padding(Space.large)
@@ -85,12 +86,12 @@ struct TryItStep: View {
         .overlay {
             RoundedRectangle(cornerRadius: Radius.large, style: .continuous)
                 .strokeBorder(
-                    trial.isRecording ? Color.aloudRecording.opacity(0.5) : Color.aloudEdge,
+                    engine.isRecording ? Color.aloudRecording.opacity(0.5) : Color.aloudEdge,
                     lineWidth: 1
                 )
         }
         .shadow(color: Elevation.resting, radius: 6, y: 2)
-        .gentleAnimation(trial.isRecording)
+        .gentleAnimation(engine.isRecording)
     }
 }
 
