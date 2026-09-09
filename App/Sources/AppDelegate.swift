@@ -1,20 +1,20 @@
 //
 //  AppDelegate.swift
-//  Aloud
+//  Orate
 //
 //  Created by Zain Najam on 09/09/2026.
 //  Copyright © 2026 Zain Najam. All rights reserved.
 //
 
-import AloudApp
-import AloudCore
+import OrateApp
+import OrateCore
 import AppKit
 import ApplicationServices
 import SwiftUI
 
 /// The shell.
 ///
-/// Deliberately thin. Everything worth reading lives in the `AloudApp` library, which the
+/// Deliberately thin. Everything worth reading lives in the `OrateApp` library, which the
 /// preview harness also links, so the two can never drift apart. This target exists because
 /// entitlements, signing and notarisation cannot live in a Swift package.
 @main
@@ -46,7 +46,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         wireDictation()
 
         // The shortcut stays live while the welcome window is up, so the user can prove it
-        // reaches Aloud on the step that teaches it. Only the typing is suppressed, because
+        // reaches Orate on the step that teaches it. Only the typing is suppressed, because
         // the words are meant to land in the window rather than in it.
         OnboardingWindow.isOpenChanged = { [weak self] isOpen in
             self?.dictation.engine.insertsIntoFrontmostApp = !isOpen
@@ -78,7 +78,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             let alert = NSAlert()
             alert.messageText = "Another app is already using that shortcut"
             alert.informativeText = """
-            Aloud could not claim \(dictation.hotkey.keycapParts.joined(separator: " ")). \
+            Orate could not claim \(dictation.hotkey.keycapParts.joined(separator: " ")). \
             Pick a different one in Settings.
             """
             alert.runModal()
@@ -91,7 +91,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let symbol = recording ? "waveform.circle.fill" : "waveform"
         statusItem?.button?.image = NSImage(
             systemSymbolName: symbol,
-            accessibilityDescription: recording ? "Aloud is listening" : "Aloud"
+            accessibilityDescription: recording ? "Orate is listening" : "Orate"
         )
         statusItem?.button?.contentTintColor = recording ? .systemRed : nil
     }
@@ -102,7 +102,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// a day that is not a notice, it is an obstruction: it steals focus from the window the
     /// user was dictating into, and it has to be dismissed before they can carry on. The
     /// information is worth giving exactly once.
-    private static let clipboardNoticeKey = "aloud.clipboardNoticeShown"
+    private static let clipboardNoticeKey = "orate.clipboardNoticeShown"
 
     private func report(_ outcome: DictationEngine.Outcome) {
         guard case .copied = outcome else { return }
@@ -112,10 +112,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let notice = NSAlert()
         notice.messageText = "Your words are on the clipboard"
         notice.informativeText = """
-        Press Command V to paste them. Aloud can type straight into your apps instead, \
+        Press Command V to paste them. Orate can type straight into your apps instead, \
         which needs Accessibility permission.
 
-        If Aloud is already ticked in System Settings, switch it off and on again. The \
+        If Orate is already ticked in System Settings, switch it off and on again. The \
         permission is tied to each build of the app, so it has to be renewed after an \
         update.
 
@@ -132,7 +132,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func installStatusItem() {
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        item.button?.image = NSImage(systemSymbolName: "waveform", accessibilityDescription: "Aloud")
+        item.button?.image = NSImage(systemSymbolName: "waveform", accessibilityDescription: "Orate")
         item.menu = buildMenu()
         statusItem = item
     }
@@ -150,7 +150,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(.separator())
 
         menu.addItem(
-            withTitle: "Welcome to Aloud\u{2026}",
+            withTitle: "Welcome to Orate\u{2026}",
             action: #selector(showOnboarding),
             keyEquivalent: ""
         ).target = self
@@ -161,7 +161,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         ).target = self
         menu.addItem(.separator())
         menu.addItem(
-            withTitle: "Quit Aloud",
+            withTitle: "Quit Orate",
             action: #selector(NSApplication.terminate(_:)),
             keyEquivalent: "q"
         )

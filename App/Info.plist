@@ -21,7 +21,7 @@
 	<key>LSMinimumSystemVersion</key>
 	<string>26.0</string>
 
-	<!-- No Dock icon and no menu bar of its own. Aloud is reached by its shortcut and by
+	<!-- No Dock icon and no menu bar of its own. Orate is reached by its shortcut and by
 	     the status item; a Dock icon for something used thirty times a day and never
 	     looked at is clutter. -->
 	<key>LSUIElement</key>
@@ -30,7 +30,7 @@
 	<!-- Shown verbatim in the system prompt, so it has to answer the question the user is
 	     actually asking at that moment, which is not "why" but "what happens to it". -->
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Aloud turns what you say into text on this Mac. The audio is transcribed on device and then discarded. It is never uploaded and never stored.</string>
+	<string>Orate turns what you say into text on this Mac. The audio is transcribed on device and then discarded. It is never uploaded and never stored.</string>
 
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2026 Zain Najam. All rights reserved.</string>

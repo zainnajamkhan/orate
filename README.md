@@ -1,4 +1,4 @@
-# Aloud
+# Orate
 
 Hold a key, talk, and the words appear wherever your cursor already is.
 
@@ -10,11 +10,11 @@ configure, because macOS 26 supplies and maintains the speech model.
 **Scaffolded, 9 September 2026.** Design system and first run onboarding built and
 passing. The transcription engine is not written yet.
 
-- Built: `AloudCore` flow logic, `AloudApp` design system, the six step onboarding across
+- Built: `OrateCore` flow logic, `OrateApp` design system, the six step onboarding across
   two panes with an illustrated stage, microphone and Accessibility permission wrappers,
-  the preview harness, and `Aloud.xcodeproj` producing a signed menu bar `Aloud.app`.
+  the preview harness, and `Orate.xcodeproj` producing a signed menu bar `Orate.app`.
   14 tests.
-- Measured: S0 passed. `aloud-spike-latency` runs real `SpeechTranscriber` transcription
+- Measured: S0 passed. `orate-spike-latency` runs real `SpeechTranscriber` transcription
   against a paced audio file.
 - `PreviewDictationSource` survives for screenshots and for looking at the flow without a
   microphone. It is no longer what the app runs.
@@ -28,7 +28,7 @@ Measured 9 September 2026 on macOS 26.6.2. Details and method in `KNOWLEDGE-BASE
 
 ```bash
 say -o /tmp/short.aiff "can we push the meeting to Thursday"
-swift run aloud-spike-latency /tmp/short.aiff
+swift run orate-spike-latency /tmp/short.aiff
 ```
 
 ## S1 built, not yet proven by a human
@@ -48,19 +48,19 @@ compiling; **nobody has spoken into it yet.** That test needs a person and a mic
 ## Known gaps, deliberately left
 
 - **The default shortcut is Control, Option and Space.** Not Option and Space: that is
-  Raycast's default and it swallows the press before Aloud sees it.
+  Raycast's default and it swallows the press before Orate sees it.
 - **No Settings window.** The onboarding no longer claims there is one. Building it needs a
   hotkey recorder, which is the real work; the three fixed choices in first run stand in
   until then.
 - **No app icon.** Needed before any build reaches another person.
 - **The shortcut stands down while the welcome window is open,** so it and the try step
   cannot fight over the microphone. Reinstated on close.
-- **Escape cancels only while an Aloud window is frontmost.** A global key monitor needs
+- **Escape cancels only while an Orate window is frontmost.** A global key monitor needs
   Accessibility, which this app will not require.
 - **One engine, one instance.** A second copy would claim the shortcut twice and open the
   microphone twice on a single press. `SingleInstance` refuses to run and raises the copy
   that is already there.
-- **There is a log** at `~/Library/Logs/Aloud/aloud.log`, reachable from the menu bar. A
+- **There is a log** at `~/Library/Logs/Orate/orate.log`, reachable from the menu bar. A
   menu bar app has nowhere else to say what went wrong.
 
 ## Next
@@ -74,14 +74,14 @@ not been cleared. See `DECISIONS.md`.
 ## Review the interface
 
 ```bash
-swift run aloud-shots ~/Desktop/shots   # every screen, both appearances, as PNGs
+swift run orate-shots ~/Desktop/shots   # every screen, both appearances, as PNGs
 ```
 
 ## Run it
 
 ```bash
-open Aloud.xcodeproj                 # the real app, menu bar and all
-swift run aloud-onboarding-preview   # just the first run flow
+open Orate.xcodeproj                 # the real app, menu bar and all
+swift run orate-onboarding-preview   # just the first run flow
 ```
 
 Distribution is Developer ID and notarisation, not the Mac App Store: typing into another

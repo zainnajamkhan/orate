@@ -1,4 +1,4 @@
-# Aloud
+# Orate
 
 Dictation for macOS. Hold a key, talk, the words appear in whatever app you were already
 in. One payment, everything on device, nothing to download and nothing to configure.
@@ -9,7 +9,7 @@ App 4 of the portfolio. Plan: `../mac-apps/04-next-bet.md`. Portfolio:
 ## The one sentence
 
 *The dictation app with nothing to set up.* Every competitor's first screen asks the user
-to choose a model and download between 500MB and 3GB. Aloud uses `SpeechAnalyzer`, which
+to choose a model and download between 500MB and 3GB. Orate uses `SpeechAnalyzer`, which
 macOS 26 ships and maintains, so there is nothing to choose and nothing to wait for. That
 is the entire wedge and it is temporary: it closes the moment a competitor adopts the same
 framework.
@@ -37,25 +37,25 @@ want and judges whether the result is acceptable. Claude implements, verifies, r
 
 ```bash
 ./Tools/test.sh                            # build, test, lint. The one command.
-open Aloud.xcodeproj                       # debug and run the real app (scheme "Aloud", shared)
-xcodebuild -project Aloud.xcodeproj -scheme Aloud build
-swift run aloud-onboarding-preview         # the first run flow on its own, no app around it
+open Orate.xcodeproj                       # debug and run the real app (scheme "Orate", shared)
+xcodebuild -project Orate.xcodeproj -scheme Orate build
+swift run orate-onboarding-preview         # the first run flow on its own, no app around it
 ```
 
 ## Layout
 
 | Target | What it is |
 |---|---|
-| `AloudCore` | Pure logic. No system frameworks, no I/O, no clock reads. Swift 6 language mode. |
-| `AloudApp` | Design system, onboarding, and the thin system edge it needs. A library, so the Xcode application target can link it once signing and entitlements exist. |
-| `aloud-onboarding-preview` | Opens the onboarding with nothing around it. Not shipped, not signed. |
-| `Aloud.xcodeproj` | The shippable app. Thin: an `AppDelegate` in `App/Sources` plus the Info.plist and entitlements, linking the two package products. It exists because signing, entitlements and notarisation cannot live in a Swift package. |
+| `OrateCore` | Pure logic. No system frameworks, no I/O, no clock reads. Swift 6 language mode. |
+| `OrateApp` | Design system, onboarding, and the thin system edge it needs. A library, so the Xcode application target can link it once signing and entitlements exist. |
+| `orate-onboarding-preview` | Opens the onboarding with nothing around it. Not shipped, not signed. |
+| `Orate.xcodeproj` | The shippable app. Thin: an `AppDelegate` in `App/Sources` plus the Info.plist and entitlements, linking the two package products. It exists because signing, entitlements and notarisation cannot live in a Swift package. |
 
 ## Rules that are easy to get wrong
 
-- **`AloudCore` stays pure.** The onboarding's gating rules live there so they can be
+- **`OrateCore` stays pure.** The onboarding's gating rules live there so they can be
   tested without a screen or a microphone. Anything touching AVFoundation, Accessibility
-  or Speech belongs in `AloudApp/System`.
+  or Speech belongs in `OrateApp/System`.
 - **The microphone is the only hard gate.** Everything else in first run is skippable, and
   that contrast is the point. Accessibility is a convenience: refuse it and the text goes
   to the clipboard. Ambit failed partly because it was worthless without Accessibility.
@@ -82,7 +82,7 @@ Six line header on every file, matching Quiet and Ambit:
 ```swift
 //
 //  FileName.swift
-//  Aloud
+//  Orate
 //
 //  Created by Zain Najam on 09/09/2026.
 //  Copyright © 2026 Zain Najam. All rights reserved.

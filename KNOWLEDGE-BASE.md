@@ -27,7 +27,7 @@ Run it yourself:
 
 ```bash
 say -o /tmp/short.aiff "can we push the meeting to Thursday"
-swift run aloud-spike-latency /tmp/short.aiff
+swift run orate-spike-latency /tmp/short.aiff
 ```
 
 **How it is measured, and why it is not the obvious way.** Transcribing a whole file and
@@ -77,7 +77,7 @@ sentence; appending every result repeats the revised ones. Key segments by
 
 **Carbon `RegisterEventHotKey` is the only global shortcut API that does not need
 Accessibility.** `CGEventTap` and `NSEvent.addGlobalMonitorForEvents` both do. Using either
-would make Aloud unable to hear its own shortcut until the user granted the permission the
+would make Orate unable to hear its own shortcut until the user granted the permission the
 app promises is optional, which turns the whole position into a lie. Carbon also reports
 key **release**, which the alternatives make awkward, and hold to talk is nothing without
 it. Yes, Carbon, in 2026. It is the correct answer.
@@ -103,14 +103,14 @@ convenience default.
 
 **Escape has to be a local monitor.** `NSEvent.addGlobalMonitorForEvents` needs
 Accessibility, so cancelling from inside another app is not available without the optional
-permission. A local monitor works whenever an Aloud window is frontmost, and everywhere
+permission. A local monitor works whenever an Orate window is frontmost, and everywhere
 else the fallback is to let go and delete.
 
 ## The shortcut, and why the first default was wrong
 
 **Option and Space is Raycast's default.** It is also close to every other launcher's. A
-user with Raycast installed presses the shortcut Aloud just taught them and Raycast opens.
-Aloud's default is now **Control, Option and Space**. Three modifiers is heavier than ideal
+user with Raycast installed presses the shortcut Orate just taught them and Raycast opens.
+Orate's default is now **Control, Option and Space**. Three modifiers is heavier than ideal
 for something held thirty times a day, and it is still the right trade.
 
 **A registered shortcut can still never fire, with no error anywhere.**
@@ -119,12 +119,12 @@ press first regardless. There is no API to ask who won. The only honest test is 
 press, which is why the shortcut step in the onboarding waits for one and confirms it
 arrived. Without that, this failure looks exactly like a broken app.
 
-**`pkill -f Aloud` does not reliably kill it; use `pkill -9`.** A stale copy survived
+**`pkill -f Orate` does not reliably kill it; use `pkill -9`.** A stale copy survived
 several rounds of testing and quietly served an old build, so fixes appeared to have no
 effect. After a force kill, `open` can return error -600 for a few seconds while the old
 process finishes tearing down. Wait and retry.
 
-**Check the running count before believing any test.** `pgrep -f "Aloud.app" | wc -l`.
+**Check the running count before believing any test.** `pgrep -f "Orate.app" | wc -l`.
 
 ## The locale bug, which killed the app for most of the world
 
@@ -145,7 +145,7 @@ fail must be shown.
 
 ## Reviewing the interface
 
-`swift run aloud-shots <dir>` renders every onboarding screen to a PNG in both appearances.
+`swift run orate-shots <dir>` renders every onboarding screen to a PNG in both appearances.
 `screencapture` needs Screen Recording, which a command line tool does not have, so this is
 the only way the layout can be checked. It found five defects in one pass that had survived
 weeks of "it builds".
@@ -180,7 +180,7 @@ Two traps getting there:
 - Naming the certificate by its **SHA1 fingerprint** with `CODE_SIGN_STYLE = Manual` works.
   `security find-identity -v -p codesigning` prints it.
 
-After changing the signature the old grant is stale: remove Aloud from the Accessibility
+After changing the signature the old grant is stale: remove Orate from the Accessibility
 list and add it again. From then on it survives rebuilds.
 
 **Check it rather than trusting the switch:** the log records
@@ -200,7 +200,7 @@ lines rather than thousands.
 The object identifiers are hand written sequential hex rather than Xcode's random ones,
 copied from Ambit. That is deliberate: the file stays readable and diffable.
 
-`App/Info.plist` and `App/Aloud.entitlements` sit **outside** the synchronized folder on
+`App/Info.plist` and `App/Orate.entitlements` sit **outside** the synchronized folder on
 purpose. Inside it they would be copied into the bundle as resources as well as being
 consumed by the build settings.
 
@@ -241,13 +241,30 @@ arrival. See `DECISIONS.md`.
 
 ## Naming clearance
 
-**Not done.** Ambit had a table here before any code was written. Aloud does not. Fill in
-before the marketing site exists:
+**The app was called Aloud until 9 September 2026. It could not keep that name.**
 
-| Check | Status |
+| Check | Result |
 |---|---|
-| Mac App Store search | not checked |
-| USPTO / EUIPO word mark | not checked |
-| `aloud.app`, `getaloud.com` | not checked |
-| GitHub / npm collision | not checked |
-| Existing macOS app called Aloud | not checked |
+| Google / YouTube product | **Fatal.** Google has an AI dubbing product called Aloud, in speech AI, the same broad category |
+| `aloud.com` / `.app` / `.io` / `getaloud` / `tryaloud` | all registered; `aloud.io` sits with MarkMonitor, the corporate brand protection registrar |
+| Mac App Store | no dictation app by that name found |
+| Search | **the real killer.** Distribution here is entirely search, and a solo app can never outrank a Google product for its own name |
+
+The trademark exposure was secondary. Being unfindable under your own name is what made it
+unusable, and it would not have shown up in a trademark search at all.
+
+### Orate, chosen 9 September 2026
+
+| Check | Result |
+|---|---|
+| `getorate.com`, `tryorate.com` | **available**, verified against Verisign RDAP |
+| `orate.app` | registered |
+| Mac App Store | nothing found |
+| USPTO / EUIPO word mark | **still not checked** |
+
+**Checking domains properly.** `whois` on this machine falls back to IANA and returns a
+generic object for both free and taken domains, so the absence of "No match" proves
+nothing. Query the registry over RDAP instead:
+`curl -o /dev/null -w "%{http_code}" https://rdap.verisign.com/com/v1/domain/NAME.com`,
+where 404 means free and 200 means taken. Always run a known free control alongside.
+`rdap.org` rate limits hard; go to the registry directly.

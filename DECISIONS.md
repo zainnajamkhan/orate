@@ -5,21 +5,25 @@ before proposing a product change.
 
 ## Open, and blocking
 
-### 1. The name has not been cleared
+### 1. The name is Orate, and the trademark register is still unchecked
 
-"Aloud" was chosen on 9 September 2026 for tone. Nobody has checked the Mac App Store, the
-trademark register, or `aloud.app` and the other domains. Ambit got a naming clearance
-table before a line was written and this did not.
+The app was called **Aloud** until 9 September 2026 and had to be renamed: Google has a
+speech AI product by that name, every domain was gone, and a solo app cannot outrank Google
+for its own name when search is the entire distribution plan. Full findings in
+`KNOWLEDGE-BASE.md`.
 
-**Until it clears, every rename is cheap:** module names, `com.zainnajamkhan.aloud`, and
-one tint. After the site and the store listing exist it is not.
+**Orate** replaced it the same day. `getorate.com` and `tryorate.com` are available and
+verified. `orate.app` is taken, which is fine: not one competitor has a bare one word
+domain either.
+
+**Still owed: a trademark search.** USPTO and EUIPO, before the site goes up.
 
 ### 2. Developer ID, not the Mac App Store
 
 **Made by default on 9 September 2026, and it contradicts the plan.**
 
 Typing into another application needs the Accessibility API, which the App Store sandbox
-forbids. So `App/Aloud.entitlements` has no sandbox key and the route is Developer ID,
+forbids. So `App/Orate.entitlements` has no sandbox key and the route is Developer ID,
 hardened runtime and notarisation.
 
 `04-next-bet.md` section 8 lists "App Store search: dictation, voice typing, speech to
