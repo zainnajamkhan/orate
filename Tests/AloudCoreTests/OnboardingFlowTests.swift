@@ -6,6 +6,7 @@
 //  Copyright © 2026 Zain Najam. All rights reserved.
 //
 
+import Foundation
 import Testing
 @testable import AloudCore
 
@@ -123,5 +124,39 @@ struct HotkeyTests {
     @Test("The suggested default is Option and Space")
     func suggestedDefault() {
         #expect(Hotkey.suggested.keycapParts == ["\u{2325}", "Space"])
+    }
+}
+
+@Suite("Preferences")
+struct PreferencesTests {
+
+    @Test("A round trip through storage changes nothing")
+    func roundTrip() throws {
+        let original = Preferences(
+            hotkey: Hotkey(keyCode: 96, modifiers: [.control, .shift]),
+            cleanupEnabled: true
+        )
+        let restored = Preferences(decoding: original.encoded())
+        #expect(restored == original)
+    }
+
+    @Test("Nothing stored yet gives the defaults")
+    func missingDataIsDefaults() {
+        #expect(Preferences(decoding: nil) == Preferences())
+    }
+
+    @Test("Unreadable storage falls back rather than leaving no shortcut at all")
+    func corruptDataIsDefaults() {
+        let rubbish = Data([0x00, 0x01, 0x02, 0xFF])
+        let recovered = Preferences(decoding: rubbish)
+        #expect(recovered == Preferences())
+        // The point of the fallback: there is always a working shortcut.
+        #expect(recovered.hotkey == .suggested)
+    }
+
+    @Test("Cleanup is off unless the user turns it on")
+    func cleanupDefaultsOff() {
+        #expect(Preferences().cleanupEnabled == false)
+        #expect(Preferences(decoding: nil).cleanupEnabled == false)
     }
 }

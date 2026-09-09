@@ -53,6 +53,7 @@ public enum AccessibilityAuthorization {
         Poller(changed: changed)
     }
 
+    @MainActor
     private final class Poller: NSObject {
         private var timer: Timer?
         private var last: PermissionState

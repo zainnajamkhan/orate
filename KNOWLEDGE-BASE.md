@@ -95,6 +95,17 @@ dictating thirty times a day would have a clipboard permanently full of their ow
 dictation. `CGEvent.keyboardSetUnicodeString` leaves it alone, and needs chunking to about
 16 characters because a long payload on one event gets truncated.
 
+**Main actor defaults, twice now.** `PreferencesStore.shared` as a default argument fails
+the same way `PreviewDictationSource()` did: default arguments are evaluated in a
+nonisolated context, so a main actor bound value cannot be one. Take an optional and
+resolve it inside the initialiser. Expect this every time a shared main actor object gets a
+convenience default.
+
+**Escape has to be a local monitor.** `NSEvent.addGlobalMonitorForEvents` needs
+Accessibility, so cancelling from inside another app is not available without the optional
+permission. A local monitor works whenever an Aloud window is frontmost, and everywhere
+else the fallback is to let go and delete.
+
 ## The Xcode project
 
 **It uses `PBXFileSystemSynchronizedRootGroup`,** pointed at `App/Sources`. New Swift files

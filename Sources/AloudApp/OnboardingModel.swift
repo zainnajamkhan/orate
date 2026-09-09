@@ -18,14 +18,32 @@ import SwiftUI
 public final class OnboardingModel: ObservableObject {
 
     @Published public private(set) var flow = OnboardingFlow()
-    @Published public var wantsCleanup = false
+
+    /// The tidy up switch on the last screen.
+    ///
+    /// Reads and writes the shared store rather than holding its own copy, because a
+    /// setting the user turns on during first run and then finds off afterwards is worse
+    /// than one that was never offered.
+    public var wantsCleanup: Bool {
+        get { preferences.cleanupEnabled }
+        set {
+            objectWillChange.send()
+            preferences.cleanupEnabled = newValue
+        }
+    }
 
     public let trial: DictationTrial
 
+    private let preferences: PreferencesStore
     private var accessibilityPoll: AnyObject?
 
-    public init(trial: DictationTrial) {
+    // `PreferencesStore.shared` cannot be a default argument: defaults are evaluated
+    // outside the actor, and the store is main actor bound. Same trap as `present`.
+    public init(trial: DictationTrial, preferences: PreferencesStore? = nil) {
+        let preferences = preferences ?? .shared
         self.trial = trial
+        self.preferences = preferences
+        flow.hotkey = preferences.hotkey
         flow.microphone = MicrophoneAuthorization.current
         flow.accessibility = AccessibilityAuthorization.current
 
@@ -51,8 +69,14 @@ public final class OnboardingModel: ObservableObject {
         flow.hasDictated = true
     }
 
+    /// Chosen on the shortcut step.
+    ///
+    /// Written straight through to the store, so the key shown in the welcome window is the
+    /// key the app is actually listening for. Keeping it only in `flow` meant the two could
+    /// disagree, and they did.
     public func setHotkey(_ hotkey: Hotkey) {
         flow.hotkey = hotkey
+        preferences.hotkey = hotkey
     }
 
     // MARK: - Permissions
