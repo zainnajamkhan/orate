@@ -24,7 +24,7 @@ passing. The transcription engine is not written yet.
 ## S0 passed
 
 **0.09s to 0.16s from the end of speech to the finished text, against a 1.0s kill rule.**
-Measured 9 September 2026 on macOS 26.6.2. Details and method in `KNOWLEDGE-BASE.md`.
+Measured 9 September 2026 on macOS 26.6.2. Details and method in `.KNOWLEDGE-BASE.md`.
 
 ```bash
 say -o /tmp/short.aiff "can we push the meeting to Thursday"
@@ -74,7 +74,7 @@ Then S2: a history of the last fifty dictations, per app preferences, and a Sett
 with a shortcut recorder.
 
 Still blocking a release: the $99 Apple Developer membership is unpaid, and the name has
-not been cleared. See `DECISIONS.md`.
+not been cleared. See `.DECISIONS.md`.
 
 ## Review the interface
 
