@@ -14,6 +14,8 @@ let package = Package(
         // A window with the onboarding in it and nothing else, so the flow can be looked
         // at without the rest of the app existing. Not shipped.
         .executable(name: "aloud-onboarding-preview", targets: ["aloud-onboarding-preview"]),
+        // S0. Measures the one number the whole product is gated on.
+        .executable(name: "aloud-spike-latency", targets: ["aloud-spike-latency"]),
     ],
     targets: [
         // Pure logic. No system frameworks, no I/O, no clock reads, so the whole
@@ -35,6 +37,11 @@ let package = Package(
         .executableTarget(
             name: "aloud-onboarding-preview",
             dependencies: ["AloudApp", "AloudCore"],
+            swiftSettings: [.swiftLanguageMode(.v5)]
+        ),
+
+        .executableTarget(
+            name: "aloud-spike-latency",
             swiftSettings: [.swiftLanguageMode(.v5)]
         ),
 

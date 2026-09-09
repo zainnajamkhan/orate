@@ -14,19 +14,30 @@ passing. The transcription engine is not written yet.
   two panes with an illustrated stage, microphone and Accessibility permission wrappers,
   the preview harness, and `Aloud.xcodeproj` producing a signed menu bar `Aloud.app`.
   14 tests.
-- Stubbed: `PreviewDictationSource` types a fixed sentence so the try step can be looked
-  at. It is not transcription and it is the first thing deleted in S0.
-- Not started: S0 latency spike, audio capture, `SpeechAnalyzer`, the global hotkey
+- Measured: S0 passed. `aloud-spike-latency` runs real `SpeechTranscriber` transcription
+  against a paced audio file.
+- Stubbed: `PreviewDictationSource` types a fixed sentence so the onboarding try step can
+  be looked at. It is not transcription, and S1 replaces it with the real engine.
+- Not started: live audio capture, `SpeechAnalyzer`, the global hotkey
   recorder, pasting into the frontmost app, history, vocabulary, licensing, the app icon.
+
+## S0 passed
+
+**0.09s to 0.16s from the end of speech to the finished text, against a 1.0s kill rule.**
+Measured 9 September 2026 on macOS 26.6.2. Details and method in `KNOWLEDGE-BASE.md`.
+
+```bash
+say -o /tmp/short.aiff "can we push the meeting to Thursday"
+swift run aloud-spike-latency /tmp/short.aiff
+```
 
 ## Next
 
-**S0, the latency spike.** Hold a hotkey, record, transcribe with `SpeechTranscriber`,
-print to the console, and measure key release to text. Kill rule: if it is above one
-second for a short sentence, stop and reconsider. Nothing else should be built until that
-number is known.
+**S1, the loop.** Global hotkey, live microphone capture, transcribe, paste into the
+frontmost app, clipboard fallback when Accessibility is refused.
 
-Blocking everything downstream: the $99 Apple Developer membership is unpaid.
+Still blocking a release: the $99 Apple Developer membership is unpaid, and the name has
+not been cleared. See `DECISIONS.md`.
 
 ## Run it
 

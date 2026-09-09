@@ -13,6 +13,66 @@ Findings, so they are not re-derived. Add to this rather than rediscovering.
 `SpeechAnalyzer` and Foundation Models are both available on this machine, so S0 has no
 prerequisite beyond writing it.
 
+## S0: the latency number. Measured 9 September 2026
+
+**The kill rule is passed with room to spare. Build it.**
+
+| Speech | End of speech to finished text | Kill rule |
+|---|---|---|
+| 1.8s, one sentence | **0.126s** | 1.000s |
+| 8.8s, two sentences | **0.155s** | 1.000s |
+| 22.0s, a paragraph | **0.094s** | 1.000s |
+
+Run it yourself:
+
+```bash
+say -o /tmp/short.aiff "can we push the meeting to Thursday"
+swift run aloud-spike-latency /tmp/short.aiff
+```
+
+**How it is measured, and why it is not the obvious way.** Transcribing a whole file and
+timing it would flatter the result badly. In real use the audio reaches the analyzer while
+the user is still speaking, so when they let go of the key only the tail is left to do. The
+spike therefore feeds the audio in at the pace it was spoken, in 0.1s chunks exactly as a
+live tap would, and starts the clock at the moment the audio ends. No microphone and no
+human are involved, which is deliberate: neither is needed to measure the part that was
+risky.
+
+**Three findings that change the product:**
+
+1. **The tail does not grow with length.** Twenty two seconds of speech finished in 0.094s,
+   faster than the one sentence run. Latency is a function of the last segment, not of the
+   session. Complaint 4 about the competition, that accuracy and speed fall off past a few
+   minutes, may not apply here at all. Worth testing at true multi minute length before
+   claiming it in marketing.
+2. **The first words take about a second, every time.** 1.02s to 1.03s across all three
+   runs, regardless of length. So there is a fixed dead second at the start of every
+   dictation where the user sees nothing happen. **The waveform in the onboarding is not
+   decoration, it is the only feedback during that second.** Do not remove it.
+3. **Accuracy is good.** Numbers and ordinals were normalised sensibly ("11%", "2nd"). The
+   two errors in the long run, "churn" heard as "Schoen" and "shipped" as "ship", came from
+   the `say` synthetic voice rather than from the model, so they are not evidence about
+   real speech either way.
+
+**Model install is a no op on this machine.** `AssetInventory.status` reported `installed`
+without any download, which is the wedge working exactly as the plan claims.
+
+## Gotchas already paid for, S0 edition
+
+**`AVAudioFile.read` past the end throws `nilError`,** a Swift runtime error standing in for
+an ObjC method that returned false with a nil error object. It says nothing about what went
+wrong and cost twenty minutes. Check `file.length - file.framePosition` before reading
+rather than treating a short read as end of file.
+
+**`SpeechTranscriber.results` can only be iterated once.** Reusing one transcriber across
+several files crashes with "attempt to await next() on more than one task". Build a fresh
+transcriber per session, which also stops the first run warming the cache for the second.
+
+**Progressive results supersede each other.** A later result can cover the same stretch of
+audio as an earlier one. Assigning the latest result to a string keeps only the last
+sentence; appending every result repeats the revised ones. Key segments by
+`result.range.start` and drop anything at or after a new segment's start.
+
 ## The Xcode project
 
 **It uses `PBXFileSystemSynchronizedRootGroup`,** pointed at `App/Sources`. New Swift files

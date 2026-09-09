@@ -65,4 +65,5 @@ Accessibility, or the app ships a slightly worse default for everyone.
   Japanese, Korean, Portuguese, Spanish. Asserted in the plan, never checked against the
   framework.
 - **The 55% faster than MacWhisper number.** Third party benchmark, not reproduced here.
-  S0 produces the number that actually matters, which is this machine's.
+  S0 measured what actually matters instead: 0.09s to 0.16s from end of speech to finished
+  text, against a 1.0s kill rule. See `KNOWLEDGE-BASE.md`.
