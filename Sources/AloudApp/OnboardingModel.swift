@@ -39,10 +39,18 @@ public final class OnboardingModel: ObservableObject {
 
     // `PreferencesStore.shared` cannot be a default argument: defaults are evaluated
     // outside the actor, and the store is main actor bound. Same trap as `present`.
-    public init(engine: DictationEngine, preferences: PreferencesStore? = nil) {
+    /// `startingAt` exists so a single screen can be rendered on its own for review.
+    /// Walking the flow by hand to look at screen five is how screens five and six stop
+    /// being looked at.
+    public init(
+        engine: DictationEngine,
+        preferences: PreferencesStore? = nil,
+        startingAt step: OnboardingStep = .welcome
+    ) {
         let preferences = preferences ?? .shared
         self.engine = engine
         self.preferences = preferences
+        flow.step = step
         flow.hotkey = preferences.hotkey
         flow.microphone = MicrophoneAuthorization.current
         flow.accessibility = AccessibilityAuthorization.current

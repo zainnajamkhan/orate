@@ -40,6 +40,23 @@ struct TryItStep: View {
                 : "Hold the button below, or hold your shortcut. Say anything, and let go."
         ) {
             VStack(alignment: .leading, spacing: Space.large) {
+                if let failure = engine.failure {
+                    // Never silent again. A dictation that fails with nothing on screen is
+                    // indistinguishable from a broken app, and that is exactly how the
+                    // locale bug survived: the log knew, the user did not.
+                    HStack(alignment: .top, spacing: Space.medium) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(Type.lead)
+                            .foregroundStyle(.orange)
+                            .frame(width: 26)
+                        Text(failure)
+                            .font(Type.detail)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .well(radius: Radius.large)
+                    .accessibilityElement(children: .combine)
+                }
+
                 transcript
                     .entrance(2)
 
@@ -68,15 +85,26 @@ struct TryItStep: View {
     /// A fixed height, so the box does not grow as the words arrive and shove the button
     /// down the screen in the middle of a sentence.
     private var transcript: some View {
+        // The placeholder sits outside the scroll view rather than inside it as empty
+        // content. Inside, it depended on the scroll view laying out at all, and it did not
+        // render offscreen, so the box read as broken in every screenshot. Outside, it is
+        // simply a label behind the text.
         ScrollView {
-            Text(engine.text.isEmpty ? "Your words will appear here." : engine.text)
+            Text(engine.text)
                 .font(.system(.title3, design: .default))
-                .foregroundStyle(engine.text.isEmpty ? .tertiary : .primary)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .textSelection(.enabled)
                 .gentleAnimation(engine.text)
         }
         .frame(height: 118)
+        .overlay(alignment: .topLeading) {
+            if engine.text.isEmpty {
+                Text(engine.isRecording ? "Listening\u{2026}" : "Your words will appear here.")
+                    .font(.system(.title3, design: .default))
+                    .foregroundStyle(.secondary)
+                    .allowsHitTesting(false)
+            }
+        }
         .padding(Space.large)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background {

@@ -26,33 +26,41 @@ struct Stage: View {
     @ObservedObject var engine: DictationEngine
 
     var body: some View {
-        ZStack {
-            Brand.stage
+        VStack(alignment: .leading, spacing: 0) {
+            Wordmark()
+                .padding(Space.section)
 
-            // Off centre and low, so the light has a direction. Centred glow reads as a
-            // vignette and vignettes look like a filter.
-            Brand.halo
-                .frame(width: 420, height: 420)
-                .offset(x: -30, y: -40)
-                .blendMode(.plusLighter)
+            Spacer(minLength: 0)
 
-            VStack(alignment: .leading, spacing: 0) {
-                Wordmark()
-                    .padding(Space.section)
+            hero
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal, Space.section)
 
-                Spacer(minLength: 0)
+            Spacer(minLength: 0)
 
-                hero
-                    .frame(maxWidth: .infinity)
-                    .padding(.horizontal, Space.section)
-
-                Spacer(minLength: 0)
-
-                caption
-                    .padding(Space.section)
-            }
+            caption
+                .padding(Space.section)
         }
         .frame(width: 348)
+        // The gradient and the glow are a *background*, not siblings in a stack.
+        //
+        // As stack siblings the 420 point halo was the widest child, so the stack laid
+        // itself out at 420, and the 348 point frame then centred and clipped it. Everything
+        // in this column was drawn 36 points to the left of where it belonged and cut off at
+        // both edges: the app mark lost its left half and the caption lost its first word. A
+        // background is sized by its parent and cannot do that.
+        .background {
+            ZStack {
+                Brand.stage
+
+                // Off centre and low, so the light has a direction. A centred glow reads as
+                // a vignette, and vignettes look like a filter.
+                Brand.halo
+                    .frame(width: 420, height: 420)
+                    .offset(x: -30, y: -40)
+                    .blendMode(.plusLighter)
+            }
+        }
         .clipped()
     }
 
@@ -161,7 +169,7 @@ private struct HotkeyHero: View {
 
     var body: some View {
         VStack(spacing: Space.section) {
-            KeycapRow(hotkey, isPressed: true, scale: 2.0, onDarkGround: true)
+            KeycapRow(hotkey, isPressed: true, scale: 1.5, onDarkGround: true)
 
             // A hand would be twee and a caption would repeat the one below. Three chevrons
             // pointing down say "push" and nothing else.
@@ -186,11 +194,13 @@ private struct TryItHero: View {
 
     var body: some View {
         VStack(spacing: Space.section) {
+            // 3 and 3, not 4 and 4. Forty two bars at four points with four point gaps is
+            // 332 points inside a 308 point column, so it ran out under the divider.
             Waveform(
                 levels: engine.levels,
                 isRecording: engine.isRecording,
-                barWidth: 4,
-                spacing: 4,
+                barWidth: 3,
+                spacing: 3,
                 usesBrandColour: false
             )
             .frame(height: 130)

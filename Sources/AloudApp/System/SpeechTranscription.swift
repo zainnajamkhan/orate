@@ -7,6 +7,7 @@
 //
 
 import AVFoundation
+import AloudCore
 import CoreMedia
 import Foundation
 import Speech
@@ -40,13 +41,20 @@ actor SpeechTranscription {
     /// Called on the main actor every time the running text changes.
     private let onText: @MainActor (String) -> Void
 
-    init(locale: Locale, onText: @escaping @MainActor (String) -> Void) async throws {
-        let supported = await SpeechTranscriber.supportedLocales.contains {
-            $0.identifier(.bcp47) == locale.identifier(.bcp47)
-        }
-        guard supported else {
+    init(locale requested: Locale, onText: @escaping @MainActor (String) -> Void) async throws {
+        // An unsupported *region* is not a failure. A Mac set to English (Pakistan) gets
+        // English (India), which is a far better acoustic match than refusing outright.
+        // Only an unsupported language is a real dead end.
+        let supported = await SpeechTranscriber.supportedLocales
+        guard let locale = SpeechLanguage.best(for: requested, from: supported) else {
             throw DictationError.languageUnavailable(
-                locale.localizedString(forIdentifier: locale.identifier) ?? locale.identifier
+                Locale.current.localizedString(forIdentifier: requested.identifier)
+                    ?? requested.identifier
+            )
+        }
+        if locale.identifier(.bcp47) != requested.identifier(.bcp47) {
+            Diagnostics.log(
+                "\(requested.identifier(.bcp47)) is not supported, using \(locale.identifier(.bcp47))"
             )
         }
 

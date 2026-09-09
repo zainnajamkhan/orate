@@ -58,19 +58,35 @@ struct HotkeyStep: View {
                         .font(Type.caption)
                         .foregroundStyle(.secondary)
 
-                    HStack(spacing: Space.small) {
+                    // Each option needs its own container. Laid out as bare rows of caps
+                    // they ran together into one undifferentiated line of seven keys, and
+                    // there was no way to see where one choice ended and the next began.
+                    HStack(spacing: Space.medium) {
                         ForEach(Hotkey.alternatives, id: \.self) { candidate in
+                            let isChosen = candidate == model.flow.hotkey
                             Button {
                                 model.setHotkey(candidate)
                             } label: {
-                                KeycapRow(candidate)
-                                    .opacity(candidate == model.flow.hotkey ? 1 : 0.55)
+                                KeycapRow(candidate, scale: 0.9)
+                                    .opacity(isChosen ? 1 : 0.6)
+                                    .padding(.horizontal, Space.small)
+                                    .padding(.vertical, Space.small)
+                                    .background {
+                                        RoundedRectangle(cornerRadius: Radius.medium, style: .continuous)
+                                            .fill(isChosen ? Color.aloud.opacity(0.10) : Color.aloudWell)
+                                    }
+                                    .overlay {
+                                        RoundedRectangle(cornerRadius: Radius.medium, style: .continuous)
+                                            .strokeBorder(
+                                                isChosen ? Color.aloud.opacity(0.55) : Color.clear,
+                                                lineWidth: 1.5
+                                            )
+                                    }
                             }
                             .buttonStyle(.plain)
-                            .accessibilityAddTraits(
-                                candidate == model.flow.hotkey ? .isSelected : []
-                            )
+                            .accessibilityAddTraits(isChosen ? .isSelected : [])
                         }
+                        Spacer(minLength: 0)
                     }
                 }
                 .entrance(3)

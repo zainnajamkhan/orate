@@ -126,6 +126,43 @@ process finishes tearing down. Wait and retry.
 
 **Check the running count before believing any test.** `pgrep -f "Aloud.app" | wc -l`.
 
+## The locale bug, which killed the app for most of the world
+
+**macOS supports thirty locales and `en-PK` is not one of them.** Nor are `en-NG`,
+`en-BD`, `en-KE`, `en-AE`. The first version demanded an exact match on
+`SpeechTranscriber.supportedLocales`, so a Mac set to English (Pakistan) started a
+dictation, failed instantly, and showed nothing. English alone is the everyday language of
+a dozen countries that are not on that list.
+
+`SpeechLanguage.best(for:from:)` now falls back within the language. South Asian and Gulf
+English resolve to `en-IN` rather than `en-US`, because Indian English is a much closer
+acoustic model than American for those speakers. Only an unsupported *language* is a real
+failure.
+
+**The failure was invisible, which is why it survived.** `DictationEngine.failure` was
+published and no view ever displayed it. The log knew; the user did not. Anything that can
+fail must be shown.
+
+## Reviewing the interface
+
+`swift run aloud-shots <dir>` renders every onboarding screen to a PNG in both appearances.
+`screencapture` needs Screen Recording, which a command line tool does not have, so this is
+the only way the layout can be checked. It found five defects in one pass that had survived
+weeks of "it builds".
+
+Two things it needs to work:
+
+- **`Entrance.isImmediate` must be set,** or every screen renders blank. Offscreen
+  rendering never fires `onAppear`, so the staggered fade in stays at zero opacity.
+- **`ScrollView` content does not render offscreen.** A placeholder inside one comes out
+  empty. Put placeholders in an `.overlay` instead, which is better anyway.
+
+**A wide child forces a stack wider than its own frame.** The stage put a 420 point glow in
+a `ZStack` and then applied `.frame(width: 348)`. The stack sized itself to the glow, and
+the frame centred and clipped it, so every element in that column was drawn 36 points left
+of where it belonged and cut off at both edges. Backgrounds are sized by their parent and
+cannot do this: use `.background { }`, not a sibling in a stack.
+
 ## The Xcode project
 
 **It uses `PBXFileSystemSynchronizedRootGroup`,** pointed at `App/Sources`. New Swift files

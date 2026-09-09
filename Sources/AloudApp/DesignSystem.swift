@@ -318,6 +318,13 @@ public enum Elevation {
 /// window. It collapses to a plain fade when the user has asked for reduced motion.
 public struct Entrance: ViewModifier {
 
+    /// Renders fully visible immediately.
+    ///
+    /// Offscreen rendering never fires `onAppear`, so without this every screenshot of the
+    /// onboarding comes out blank and the review that was supposed to catch layout problems
+    /// catches nothing.
+    public nonisolated(unsafe) static var isImmediate = false
+
     let index: Int
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -325,7 +332,7 @@ public struct Entrance: ViewModifier {
 
     public func body(content: Content) -> some View {
         content
-            .opacity(appeared ? 1 : 0)
+            .opacity(appeared || Self.isImmediate ? 1 : 0)
             .offset(y: appeared || reduceMotion ? 0 : 10)
             .animation(
                 .easeOut(duration: 0.32).delay(Double(index) * 0.045),

@@ -173,3 +173,69 @@ struct PreferencesTests {
         #expect(Preferences(decoding: nil).cleanupEnabled == false)
     }
 }
+
+@Suite("Speech language fallback")
+struct SpeechLanguageTests {
+
+    /// The thirty macOS 26 actually supports, as read off the framework on 9 Sept 2026.
+    static let supported = [
+        "de-AT", "de-CH", "de-DE", "en-AU", "en-CA", "en-GB", "en-IE", "en-IN", "en-NZ",
+        "en-SG", "en-US", "en-ZA", "es-CL", "es-ES", "es-MX", "es-US", "fr-BE", "fr-CA",
+        "fr-CH", "fr-FR", "it-CH", "it-IT", "ja-JP", "ko-KR", "pt-BR", "pt-PT", "yue-CN",
+        "zh-CN",
+    ].map { Locale(identifier: $0) }
+
+    private func best(_ identifier: String) -> String? {
+        SpeechLanguage.best(for: Locale(identifier: identifier), from: Self.supported)?
+            .identifier(.bcp47)
+    }
+
+    @Test("A supported region is used as it is")
+    func exactMatchWins() {
+        #expect(best("en_GB") == "en-GB")
+        #expect(best("ja_JP") == "ja-JP")
+    }
+
+    @Test("English (Pakistan) falls back rather than failing")
+    func theBugThatStartedThis() {
+        // This exact locale gave a dead app that failed instantly with no visible reason.
+        #expect(best("en_PK") == "en-IN")
+    }
+
+    @Test("South Asian and Gulf English go to Indian English, not American")
+    func southAsianEnglish() {
+        for region in ["PK", "BD", "LK", "NP", "AE", "QA", "SA"] {
+            #expect(best("en_\(region)") == "en-IN", "en_\(region)")
+        }
+    }
+
+    @Test("West African and European English go to British English")
+    func britishLeaningEnglish() {
+        for region in ["NG", "GH", "NL", "DE", "PL"] {
+            #expect(best("en_\(region)") == "en-GB", "en_\(region)")
+        }
+    }
+
+    @Test("An unlisted region with no neighbour gets the language's usual default")
+    func unlistedRegionFallsBackToDefault() {
+        #expect(best("en_BS") == "en-US")
+        #expect(best("es_AR") == "es-ES")
+        #expect(best("fr_SN") == "fr-FR")
+        #expect(best("pt_AO") == "pt-PT")
+    }
+
+    @Test("An unsupported language is a real failure and says so")
+    func unsupportedLanguageIsNil() {
+        #expect(best("ur_PK") == nil)
+        #expect(best("ar_AE") == nil)
+        #expect(best("hi_IN") == nil)
+    }
+
+    @Test("Every supported locale resolves to itself")
+    func everySupportedLocaleIsStable() {
+        for locale in Self.supported {
+            let resolved = SpeechLanguage.best(for: locale, from: Self.supported)
+            #expect(resolved?.identifier(.bcp47) == locale.identifier(.bcp47))
+        }
+    }
+}

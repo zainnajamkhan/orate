@@ -103,10 +103,15 @@ public struct RecordingBadge: View {
                 .fill(isRecording ? Color.aloudRecording : idleDot)
                 .frame(width: 8, height: 8)
                 .overlay {
-                    Circle()
-                        .stroke(Color.aloudRecording.opacity(0.45), lineWidth: 5)
-                        .scaleEffect(pulsing && isRecording ? 2.1 : 1)
-                        .opacity(pulsing && isRecording ? 0 : 1)
+                    // Only while live. Drawn unconditionally it put a recording halo around
+                    // the word "Not listening", which is the exact opposite of what the one
+                    // unambiguous indicator in this app is for.
+                    if isRecording {
+                        Circle()
+                            .stroke(Color.aloudRecording.opacity(0.45), lineWidth: 5)
+                            .scaleEffect(pulsing ? 2.1 : 1)
+                            .opacity(pulsing ? 0 : 1)
+                    }
                 }
                 .animation(
                     reduceMotion || !isRecording

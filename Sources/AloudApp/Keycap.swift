@@ -40,6 +40,10 @@ public struct Keycap: View {
         Text(label)
             .font(.system(size: 14 * scale, weight: .medium, design: .rounded))
             .foregroundStyle(foreground)
+            // A key is a physical object and does not wrap. Without this, "Space" broke
+            // across two lines inside the cap as soon as the row ran short of room.
+            .lineLimit(1)
+            .fixedSize(horizontal: true, vertical: false)
             .frame(minWidth: 30 * scale, minHeight: 20 * scale)
             .padding(.horizontal, Space.small * scale)
             .padding(.vertical, Space.tight * scale)

@@ -71,6 +71,12 @@ and per app preferences.
 Still blocking a release: the $99 Apple Developer membership is unpaid, and the name has
 not been cleared. See `DECISIONS.md`.
 
+## Review the interface
+
+```bash
+swift run aloud-shots ~/Desktop/shots   # every screen, both appearances, as PNGs
+```
+
 ## Run it
 
 ```bash
