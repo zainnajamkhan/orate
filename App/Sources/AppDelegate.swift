@@ -7,6 +7,7 @@
 //
 
 import AloudApp
+import AloudCore
 import AppKit
 import SwiftUI
 
@@ -20,6 +21,7 @@ import SwiftUI
 final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private var statusItem: NSStatusItem?
+    private let dictation = DictationController()
 
     static func main() {
         let app = NSApplication.shared
@@ -30,26 +32,88 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         installStatusItem()
+        wireDictation()
 
-        // First run opens the welcome. Afterwards the app starts silently, which for a
-        // menu bar utility is the whole point.
+        // First run opens the welcome. Afterwards the app starts silently, which for a menu
+        // bar utility is the whole point.
         if !OnboardingWindow.hasCompleted {
             OnboardingWindow.present()
         }
     }
 
+    // MARK: - Dictation
+
+    private func wireDictation() {
+        dictation.recordingChanged = { [weak self] recording in
+            self?.updateStatusIcon(recording: recording)
+        }
+        dictation.finished = { [weak self] outcome in
+            self?.report(outcome)
+        }
+
+        if !dictation.activate() {
+            // Registration fails when another app already owns the combination. An app that
+            // looks installed and silently never responds is the worst possible failure, so
+            // it is said out loud once.
+            let alert = NSAlert()
+            alert.messageText = "Another app is already using that shortcut"
+            alert.informativeText = """
+            Aloud could not claim \(dictation.hotkey.keycapParts.joined(separator: " ")). \
+            Pick a different one in Settings.
+            """
+            alert.runModal()
+        }
+    }
+
+    /// The menu bar icon is the only thing on screen while dictating, so it carries the one
+    /// fact that matters: whether the microphone is open.
+    private func updateStatusIcon(recording: Bool) {
+        let symbol = recording ? "waveform.circle.fill" : "waveform"
+        statusItem?.button?.image = NSImage(
+            systemSymbolName: symbol,
+            accessibilityDescription: recording ? "Aloud is listening" : "Aloud"
+        )
+        statusItem?.button?.contentTintColor = recording ? .systemRed : nil
+    }
+
+    private func report(_ outcome: DictationEngine.Outcome) {
+        guard case .copied = outcome else { return }
+        // Typing needs no announcement: the words are visibly there. The clipboard route is
+        // the one the user has to be told about, or the dictation looks like it vanished.
+        let notice = NSAlert()
+        notice.messageText = "Copied to your clipboard"
+        notice.informativeText = """
+        Press Command V to paste. Aloud can type this straight in for you if you turn on \
+        Accessibility in System Settings.
+        """
+        notice.addButton(withTitle: "OK")
+        notice.addButton(withTitle: "Open Settings")
+        if notice.runModal() == .alertSecondButtonReturn {
+            AccessibilityAuthorization.openSystemSettings()
+        }
+    }
+
+    // MARK: - Menu bar
+
     private func installStatusItem() {
         let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        item.button?.image = NSImage(
-            systemSymbolName: "waveform",
-            accessibilityDescription: "Aloud"
-        )
+        item.button?.image = NSImage(systemSymbolName: "waveform", accessibilityDescription: "Aloud")
         item.menu = buildMenu()
         statusItem = item
     }
 
     private func buildMenu() -> NSMenu {
         let menu = NSMenu()
+
+        let shortcut = NSMenuItem(
+            title: "Hold \(dictation.hotkey.keycapParts.joined(separator: " ")) to dictate",
+            action: nil,
+            keyEquivalent: ""
+        )
+        shortcut.isEnabled = false
+        menu.addItem(shortcut)
+        menu.addItem(.separator())
+
         menu.addItem(
             withTitle: "Welcome to Aloud\u{2026}",
             action: #selector(showOnboarding),

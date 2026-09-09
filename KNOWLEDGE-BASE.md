@@ -73,6 +73,28 @@ audio as an earlier one. Assigning the latest result to a string keeps only the 
 sentence; appending every result repeats the revised ones. Key segments by
 `result.range.start` and drop anything at or after a new segment's start.
 
+## S1 traps
+
+**Carbon `RegisterEventHotKey` is the only global shortcut API that does not need
+Accessibility.** `CGEventTap` and `NSEvent.addGlobalMonitorForEvents` both do. Using either
+would make Aloud unable to hear its own shortcut until the user granted the permission the
+app promises is optional, which turns the whole position into a lie. Carbon also reports
+key **release**, which the alternatives make awkward, and hold to talk is nothing without
+it. Yes, Carbon, in 2026. It is the correct answer.
+
+**Do not read `self.session` from the audio tap callback.** Two separate word eating bugs
+live there. Assigning the property after `capture.start` drops every buffer that arrives
+first, which is the opening tenth of a second and therefore the first word. Clearing the
+property in `end()` drops the buffers still in flight to the main actor, which is the last
+word. Capture the session object in the closure instead; appending to a finished session is
+a no op.
+
+**Type unicode key events, do not paste.** The easy insertion is to put the text on the
+pasteboard and synthesise Command V, and it destroys whatever the user had copied. Somebody
+dictating thirty times a day would have a clipboard permanently full of their own
+dictation. `CGEvent.keyboardSetUnicodeString` leaves it alone, and needs chunking to about
+16 characters because a long payload on one event gets truncated.
+
 ## The Xcode project
 
 **It uses `PBXFileSystemSynchronizedRootGroup`,** pointed at `App/Sources`. New Swift files

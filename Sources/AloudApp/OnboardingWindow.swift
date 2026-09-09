@@ -40,9 +40,12 @@ public enum OnboardingWindow {
             return
         }
 
-        // Built here rather than as a default argument: a default is evaluated outside
-        // the main actor, and this one is main actor bound.
-        let trial = DictationTrial(source: source ?? PreviewDictationSource())
+        // The real engine, not a demo. The try step is the screen that convinces someone
+        // to buy the app, so it runs exactly the code the shortcut runs. Insertion is off
+        // here only because the words are meant to land in this window.
+        let trial = DictationTrial(
+            source: source ?? DictationEngine(insertsIntoFrontmostApp: false)
+        )
         let view = OnboardingView(model: OnboardingModel(trial: trial)) {
             UserDefaults.standard.set(true, forKey: completedKey)
             close()
