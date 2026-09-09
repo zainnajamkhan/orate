@@ -31,13 +31,20 @@ enum TextInsertion {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return .copied }
 
+        // Named every time, success or failure, because "it did not work" is meaningless
+        // without knowing what was actually in front of the app when it tried. This is
+        // what turns a report like "does not work in Xcode" into a fact rather than a
+        // guess: the log says exactly what received the keystrokes.
+        let target = NSWorkspace.shared.frontmostApplication?.localizedName ?? "unknown"
+
         guard AXIsProcessTrusted() else {
-            Diagnostics.log("not trusted for Accessibility, copying instead of typing")
+            Diagnostics.log("not trusted for Accessibility, copying instead of typing (front app: \(target))")
             copy(trimmed)
             return .copied
         }
 
         type(trimmed)
+        Diagnostics.log("typed \(trimmed.count) characters into front app: \(target)")
         return .typed
     }
 
