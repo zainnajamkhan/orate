@@ -18,6 +18,8 @@ let package = Package(
         .executable(name: "orate-spike-latency", targets: ["orate-spike-latency"]),
         // Renders every onboarding screen to a PNG so the layout can be reviewed.
         .executable(name: "orate-shots", targets: ["orate-shots"]),
+        // Draws the app icon at every size Xcode needs.
+        .executable(name: "orate-icon", targets: ["orate-icon"]),
     ],
     targets: [
         // Pure logic. No system frameworks, no I/O, no clock reads, so the whole
@@ -39,6 +41,11 @@ let package = Package(
         .executableTarget(
             name: "orate-onboarding-preview",
             dependencies: ["OrateApp", "OrateCore"],
+            swiftSettings: [.swiftLanguageMode(.v5)]
+        ),
+
+        .executableTarget(
+            name: "orate-icon",
             swiftSettings: [.swiftLanguageMode(.v5)]
         ),
 
