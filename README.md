@@ -31,10 +31,11 @@ say -o /tmp/short.aiff "can we push the meeting to Thursday"
 swift run orate-spike-latency /tmp/short.aiff
 ```
 
-## S1 built, not yet proven by a human
+## S1 works
 
-Hold the shortcut, talk, let go, and the words are typed where your cursor is. Built and
-compiling; **nobody has spoken into it yet.** That test needs a person and a microphone.
+**Confirmed by hand on 9 September 2026.** Hold the shortcut, talk, let go, and the words
+are typed where the cursor already is, in whatever application was in front. The loop this
+whole product is is finished.
 
 - `GlobalHotkey` uses Carbon `RegisterEventHotKey`, which is the only system wide shortcut
   API that does **not** need Accessibility. Anything else would make the optional
@@ -65,8 +66,12 @@ compiling; **nobody has spoken into it yet.** That test needs a person and a mic
 
 ## Next
 
-**Test S1 by hand.** Then S2: cancel with Escape, a history of the last fifty dictations,
-and per app preferences.
+**Use it for a week before building anything else.** Two of the remaining decisions cannot
+be made from a desk: how many free minutes a day is fair, and which of S2's features are
+actually missed. Both answers come from using it, and neither is guessable.
+
+Then S2: a history of the last fifty dictations, per app preferences, and a Settings window
+with a shortcut recorder.
 
 Still blocking a release: the $99 Apple Developer membership is unpaid, and the name has
 not been cleared. See `DECISIONS.md`.
