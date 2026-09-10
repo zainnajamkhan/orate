@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orate: dictation for macOS with nothing to set up</title>
+<meta name="description" content="Hold a key, talk, and the words appear at your cursor. On device, one payment, nothing to download.">
+<link rel="icon" href="assets/icon.png">
+<meta property="og:title" content="Orate: dictation for macOS with nothing to set up">
+<meta property="og:description" content="Hold a key, talk, and the words appear at your cursor. On device, one payment, nothing to download.">
+<meta property="og:image" content="assets/hero-welcome.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --accent: #5447b8;
+    --accent-soft: #eeecfa;
+    --ink: #18181b;
+    --ink-soft: #71717a;
+    --line: #e4e4e7;
+    --ground: #fafafa;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: var(--ink);
+    background: var(--ground);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  img { max-width: 100%; display: block; }
+  a { color: inherit; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+  @media (min-width: 640px) { .wrap { padding: 0 40px; } }
+
+  /* Nav */
+  header {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px; padding: 0 24px;
+    background: rgba(255,255,255,0.9);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--line);
+  }
+  @media (min-width: 640px) { header { padding: 0 40px; } }
+  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .brand img { width: 28px; height: 28px; border-radius: 7px; }
+  .brand span { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; }
+  .nav-cta {
+    background: var(--accent); color: #fff; text-decoration: none;
+    font-size: 14px; font-weight: 600;
+    padding: 8px 16px; border-radius: 999px;
+    transition: filter 0.15s ease;
+  }
+  .nav-cta:hover { filter: brightness(1.1); }
+
+  /* Hero */
+  .hero {
+    display: grid; gap: 48px;
+    padding: 64px 0 80px;
+  }
+  @media (min-width: 768px) {
+    .hero { grid-template-columns: 1fr 1fr; align-items: center; gap: 40px; }
+  }
+  .hero h1 {
+    font-size: 40px; font-weight: 700;
+    letter-spacing: -0.03em; line-height: 1.02;
+  }
+  @media (min-width: 640px) { .hero h1 { font-size: 60px; } }
+  .hero p.lede {
+    margin-top: 24px; max-width: 46ch;
+    font-size: 16px; color: var(--ink-soft);
+  }
+  .hero-actions { margin-top: 32px; display: flex; flex-wrap: wrap; align-items: center; gap: 20px; }
+  .btn-primary {
+    background: var(--accent); color: #fff; text-decoration: none;
+    font-size: 15px; font-weight: 600;
+    padding: 12px 24px; border-radius: 999px;
+    box-shadow: 0 8px 24px -8px rgba(84,71,184,0.55);
+    transition: filter 0.15s ease, transform 0.1s ease;
+  }
+  .btn-primary:hover { filter: brightness(1.08); }
+  .btn-primary:active { transform: scale(0.975); }
+  .link-ghost {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 15px; font-weight: 500; text-decoration: none;
+    position: relative;
+  }
+  .link-ghost::after {
+    content: ""; position: absolute; left: 0; bottom: -4px;
+    width: 100%; height: 1px; background: var(--accent);
+    transform: scaleX(0.28); transform-origin: left;
+    transition: transform 0.3s ease;
+  }
+  .link-ghost:hover::after { transform: scaleX(1); }
+  .hero-shot img {
+    width: 100%; border-radius: 16px;
+    box-shadow: 0 30px 60px -20px rgba(24,24,27,0.25);
+  }
+  .hero-shot { order: -1; }
+  @media (min-width: 768px) { .hero-shot { order: 1; } }
+
+  /* Sections */
+  section { padding: 64px 0; }
+  h2 { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; max-width: 32ch; }
+  @media (min-width: 640px) { h2 { font-size: 30px; } }
+
+  /* Why now: divided list */
+  .reasons { margin-top: 40px; border-top: 1px solid var(--line); }
+  .reason {
+    display: flex; flex-direction: column; gap: 16px;
+    padding: 24px 0; border-bottom: 1px solid var(--line);
+  }
+  @media (min-width: 640px) { .reason { flex-direction: row; align-items: flex-start; gap: 32px; } }
+  .reason-head { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+  @media (min-width: 640px) { .reason-head { width: 256px; } }
+  .reason-head svg { width: 22px; height: 22px; stroke: var(--accent); flex-shrink: 0; }
+  .reason-head h3 { font-size: 17px; font-weight: 600; }
+  .reason p { font-size: 15px; color: var(--ink-soft); max-width: 58ch; }
+  .measure {
+    margin-top: 32px; padding-left: 16px;
+    border-left: 2px solid var(--accent);
+    font-size: 15px; color: var(--ink-soft);
+  }
+
+  /* Demonstration */
+  .demo-band { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .demo-grid { margin-top: 40px; display: grid; gap: 32px; }
+  @media (min-width: 640px) { .demo-grid { grid-template-columns: repeat(3, 1fr); } }
+  .demo-grid img { border: 1px solid var(--line); border-radius: 12px; }
+  .demo-grid p { margin-top: 12px; font-size: 14px; color: var(--ink-soft); }
+  .demo-sub { margin-top: 8px; max-width: 28rem; font-size: 15px; color: var(--ink-soft); }
+
+  /* Price */
+  .price-grid { display: grid; gap: 40px; }
+  @media (min-width: 768px) { .price-grid { grid-template-columns: 1fr 1.1fr; align-items: center; gap: 64px; } }
+  .eyebrow { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--accent); }
+  .figure { margin-top: 12px; font-family: "Geist Mono", ui-monospace, monospace; font-size: 48px; letter-spacing: -0.02em; }
+  @media (min-width: 640px) { .figure { font-size: 60px; } }
+  .figure-note { margin-top: 4px; font-size: 15px; color: var(--ink-soft); }
+  .price-copy p { margin-top: 16px; max-width: 52ch; font-size: 15px; color: var(--ink-soft); }
+  .price-actions { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+  .btn-outline {
+    border: 1px solid var(--line); color: var(--ink); text-decoration: none;
+    font-size: 15px; font-weight: 500;
+    padding: 12px 20px; border-radius: 999px;
+    transition: border-color 0.15s ease;
+  }
+  .btn-outline:hover { border-color: var(--accent); }
+
+  /* FAQ */
+  .faq { max-width: 768px; }
+  .faq-list { margin-top: 32px; border-top: 1px solid var(--line); }
+  .faq-item { border-bottom: 1px solid var(--line); }
+  .faq-q {
+    width: 100%; background: none; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 20px 0; text-align: left;
+    font-family: inherit; font-size: 17px; font-weight: 500; color: var(--ink);
+  }
+  .faq-q .plus { font-size: 20px; color: var(--ink-soft); transition: transform 0.2s ease; flex-shrink: 0; }
+  .faq-item[open] .faq-q .plus { transform: rotate(45deg); }
+  .faq-a { padding: 0 0 20px; max-width: 62ch; font-size: 15px; color: var(--ink-soft); }
+  .faq-item summary { list-style: none; }
+  .faq-item summary::-webkit-details-marker { display: none; }
+
+  /* Footer */
+  footer { border-top: 1px solid var(--line); padding: 40px 0; }
+  footer .brand span { font-size: 15px; }
+  footer p { margin-top: 12px; font-size: 13px; color: var(--ink-soft); }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; scroll-behavior: auto !important; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="brand" href="#top">
+    <img src="assets/icon.png" alt="">
+    <span>Orate</span>
+  </a>
+  <a class="nav-cta" href="#price">See the price</a>
+</header>
+
+<main id="top">
+  <div class="wrap">
+    <section class="hero">
+      <div>
+        <h1>Talk. The words appear.</h1>
+        <p class="lede">Hold a key, say it, and the words land at your cursor. Nothing to download, nothing to configure.</p>
+        <div class="hero-actions">
+          <a class="btn-primary" href="#price">See the price</a>
+          <a class="link-ghost" href="#demo">See how it works <span aria-hidden="true">&rarr;</span></a>
+        </div>
+      </div>
+      <div class="hero-shot">
+        <img src="assets/hero-welcome.png" alt="Orate's welcome screen: Talk. The words appear.">
+      </div>
+    </section>
+  </div>
+
+  <div class="wrap">
+    <section>
+      <h2>Every other dictation app makes you choose a model first.</h2>
+      <div class="reasons">
+        <div class="reason">
+          <div class="reason-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v9"/><path d="M8 9l4 4 4-4"/><path d="M4 21h16"/></svg>
+            <h3>Nothing to download</h3>
+          </div>
+          <p>No model to pick, no gigabytes to wait for, no choice between fast and accurate. macOS already has the model and keeps it current.</p>
+        </div>
+        <div class="reason">
+          <div class="reason-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9c-4-1.5-7-4.5-7-9V6z"/></svg>
+            <h3>Your voice never leaves this Mac</h3>
+          </div>
+          <p>Recognition runs on the Neural Engine. There is no account, no server, and nothing to opt out of.</p>
+        </div>
+        <div class="reason">
+          <div class="reason-head">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6h14"/><path d="M12 6v13"/><path d="M9 19h6"/></svg>
+            <h3>It types the words you said</h3>
+          </div>
+          <p>No answering your sentence back at you, no rewriting it. Tidying up is a separate switch, and it starts off.</p>
+        </div>
+      </div>
+      <p class="measure">Measured on this Mac: under two tenths of a second from the last word spoken to finished text on screen.</p>
+    </section>
+  </div>
+
+  <div class="demo-band">
+    <div class="wrap">
+      <section id="demo">
+        <h2>This is the real app.</h2>
+        <p class="demo-sub">Every screen below is the actual onboarding, not a mockup.</p>
+        <div class="demo-grid">
+          <div>
+            <img src="assets/screen-try-it.png" alt="">
+            <p>Hold the shortcut, say anything, and watch it land while you are still talking.</p>
+          </div>
+          <div>
+            <img src="assets/screen-shortcut.png" alt="">
+            <p>Pick your shortcut once. Orate confirms the key actually reached it, not just that it registered.</p>
+          </div>
+          <div>
+            <img src="assets/screen-ready.png" alt="">
+            <p>It lives in your menu bar. No dock icon and no window, until you ask for one.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <section id="price">
+      <div class="price-grid">
+        <div>
+          <p class="eyebrow">Pre-launch</p>
+          <p class="figure">$39</p>
+          <p class="figure-note">once, no subscription</p>
+        </div>
+        <div class="price-copy">
+          <h2>Orate is not on sale yet.</h2>
+          <p>When it is, the price above is the price. One payment, and it is yours. Watch the project for updates and you will see when it ships.</p>
+          <div class="price-actions">
+            <a class="btn-primary" href="https://github.com/zainnajamkhan/orate" target="_blank" rel="noopener">Watch on GitHub</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="wrap">
+    <section class="faq">
+      <h2>A few honest answers.</h2>
+      <div class="faq-list">
+        <details class="faq-item" open>
+          <summary class="faq-q">Does it need macOS 26? <span class="plus" aria-hidden="true">+</span></summary>
+          <p class="faq-a">Yes. Orate is built on SpeechAnalyzer, the on device speech framework macOS 26 ships. That is the entire reason there is nothing to download: the model is already on your Mac and Apple keeps it current. There is no fallback for older systems, because shipping one would mean bundling a model, which is the thing Orate exists to avoid.</p>
+        </details>
+        <details class="faq-item">
+          <summary class="faq-q">Does my voice leave my Mac? <span class="plus" aria-hidden="true">+</span></summary>
+          <p class="faq-a">No. Recognition runs on the Neural Engine. There is no account, no server, and nothing to opt out of, because there is nothing to send.</p>
+        </details>
+        <details class="faq-item">
+          <summary class="faq-q">Is this a subscription? <span class="plus" aria-hidden="true">+</span></summary>
+          <p class="faq-a">No. One payment, and it is yours. Every incumbent worth comparing against is a subscription for software that runs entirely on your own machine.</p>
+        </details>
+        <details class="faq-item">
+          <summary class="faq-q">What happens without the Accessibility permission? <span class="plus" aria-hidden="true">+</span></summary>
+          <p class="faq-a">Orate still works. Without it, dictated text goes to your clipboard instead of being typed at your cursor, and you paste it yourself. Refusing that permission does not break the app, it just makes it one step slower.</p>
+        </details>
+        <details class="faq-item">
+          <summary class="faq-q">Does it rewrite what I said? <span class="plus" aria-hidden="true">+</span></summary>
+          <p class="faq-a">Not by default. Orate types the words you said. An optional cleanup pass removes filler words and fixes punctuation, off unless you turn it on, and it never changes your meaning.</p>
+        </details>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a class="brand" href="#top">
+      <img src="assets/icon.png" alt="" style="width:22px;height:22px;border-radius:6px">
+      <span>Orate</span>
+    </a>
+    <p>Dictation for macOS, with nothing to set up.</p>
+    <p>&copy; 2026 Orate.</p>
+  </div>
+</footer>
+
+</body>
+</html>
